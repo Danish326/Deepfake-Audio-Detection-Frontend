@@ -19,6 +19,22 @@ export default function RegisterPage() {
       setError('Password must be at least 8 characters');
       return;
     }
+    if (!/[a-z]/.test(password)) {
+      setError('Password must contain at least one lowercase letter (a-z)');
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter (A-Z)');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one number (0-9)');
+      return;
+    }
+    if (!/[^a-zA-Z0-9]/.test(password)) {
+      setError('Password must contain at least one special character');
+      return;
+    }
     setLoading(true);
     try {
       await register(username, email, password);
@@ -86,7 +102,7 @@ export default function RegisterPage() {
                   id="register-password"
                   className="form-input"
                   type="password"
-                  placeholder="Minimum 8 characters"
+                  placeholder="Min 8 chars, 1 uppercase, 1 number, 1 special"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

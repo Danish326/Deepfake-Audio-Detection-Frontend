@@ -29,7 +29,7 @@ async function request(endpoint, options = {}) {
 
   const response = await fetch(url, { ...options, headers });
 
-  if (response.status === 401) {
+  if (response.status === 401 && !options.skipAuth) {
     removeToken();
     window.location.href = '/login';
     throw new Error('Unauthorized');
@@ -117,6 +117,13 @@ export const api = {
 
   async getAdminPredictions(limit = 50) {
     return await request(`/admin/predictions?limit=${limit}`);
+  },
+
+  async logAdminAction(action, metadata = {}) {
+    return await request('/admin/audit-logs', {
+      method: 'POST',
+      json: { action, metadata }
+    });
   },
 
   // ── Utility ──

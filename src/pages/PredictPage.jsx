@@ -17,6 +17,7 @@ const STEP_DELAY_MS = 2000;
 export default function PredictPage() {
   const { user } = useAuth();
   const [file, setFile] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -24,6 +25,16 @@ export default function PredictPage() {
   const [isAdvancedUser, setIsAdvancedUser] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setAudioUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setAudioUrl(null);
+    }
+  }, [file]);
 
   useEffect(() => {
     if (user?.is_staff || user?.is_superuser) {
@@ -164,13 +175,20 @@ export default function PredictPage() {
             </div>
 
             {file && (
-              <div className="selected-file">
-                <div className="file-icon">🎵</div>
-                <div className="file-info">
-                  <div className="file-name">{file.name}</div>
-                  <div className="file-size">{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+              <div style={{ marginTop: '24px' }}>
+                <div className="selected-file">
+                  <div className="file-icon">🎵</div>
+                  <div className="file-info">
+                    <div className="file-name">{file.name}</div>
+                    <div className="file-size">{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+                  </div>
+                  <button className="remove-file" onClick={(e) => { e.stopPropagation(); setFile(null); }}>✕</button>
                 </div>
-                <button className="remove-file" onClick={(e) => { e.stopPropagation(); setFile(null); }}>✕</button>
+                {audioUrl && (
+                  <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center' }}>
+                    <audio controls src={audioUrl} style={{ width: '100%' }} />
+                  </div>
+                )}
               </div>
             )}
 
@@ -194,7 +212,16 @@ export default function PredictPage() {
         )
       ) : (
         <>
-          <PredictionResult result={result} />
+          {audioUrl && (
+            <div className="card" style={{ padding: '16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div className="file-icon" style={{ background: 'var(--bg-primary)', margin: 0 }}>🎵</div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{file?.name}</div>
+                <audio controls src={audioUrl} style={{ width: '100%', height: '40px' }} />
+              </div>
+            </div>
+          )}
+          <PredictionResult result={result} isAdvancedUser={isAdvancedUser} />
           <button className="btn btn-secondary" style={{ marginTop: 24 }} onClick={resetForm}>
             ← Analyze Another File
           </button>

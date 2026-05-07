@@ -1,4 +1,4 @@
-export default function PredictionResult({ result }) {
+export default function PredictionResult({ result, isAdvancedUser = true }) {
   if (!result) return null;
 
   const isReal = result.label === 'real';
@@ -49,28 +49,35 @@ export default function PredictionResult({ result }) {
           <h4 style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
             Per-Model Breakdown
           </h4>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Model</th>
-                <th>Label</th>
-                <th>Confidence</th>
-                <th>P(Real)</th>
-                <th>P(Fake)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(result.per_model).map(([name, m]) => (
-                <tr key={name}>
-                  <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{name}</td>
-                  <td><span className={`label-badge ${m.label}`}>{m.label}</span></td>
-                  <td>{(m.confidence * 100).toFixed(1)}%</td>
-                  <td style={{ color: 'var(--success)' }}>{(m.prob_real * 100).toFixed(2)}%</td>
-                  <td style={{ color: 'var(--danger)' }}>{(m.prob_fake * 100).toFixed(2)}%</td>
+          {isAdvancedUser ? (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Label</th>
+                  <th>Confidence</th>
+                  <th>P(Real)</th>
+                  <th>P(Fake)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {Object.entries(result.per_model).map(([name, m]) => (
+                  <tr key={name}>
+                    <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{name}</td>
+                    <td><span className={`label-badge ${m.label}`}>{m.label}</span></td>
+                    <td>{(m.confidence * 100).toFixed(1)}%</td>
+                    <td style={{ color: 'var(--success)' }}>{(m.prob_real * 100).toFixed(2)}%</td>
+                    <td style={{ color: 'var(--danger)' }}>{(m.prob_fake * 100).toFixed(2)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="empty-state" style={{ padding: '24px', background: 'rgba(0,0,0,0.02)', border: '1px dashed var(--border)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>🔒</div>
+              <p style={{ margin: 0, color: 'var(--text-muted)' }}>Upgrade to Analyst or Corporate plan to view detailed per-model metrics.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
